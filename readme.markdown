@@ -15,7 +15,7 @@ CREATE DATABASE my_db;
 
 ## 2 创建表
 
-### 2.1 创建表
+### 创建表
 
 > 通过CREATE TABLE 表名 (
 >    列名称   类型        是否为空   自增,
@@ -67,7 +67,38 @@ PRIMARY KEY(id,name)
 > **不允许函数**与大多数DBMS不一样，MySQL不允许使用函数作为默认值，它只支持常量。
 > **使用默认值而不是NULL值**许多数据库开发人员使用默认值而不是NULL列，特别是对用于计算或数据分组的列更是如此。
 
-### 3.2 选择数据库
+### 引擎类型
+
+> 如果省略ENGINE=语句，则使用默认引擎（很可能是MyISAM），多数SQL语句都会默认使用它。
+
+>- InnoDB是一个可靠的事务处理引擎（参见第26章），它不支持全文本搜索.
+>- MEMORY在功能等同于MyISAM，但由于数据存储在内存（不是磁盘）中，速度很快（特别适合于临时表）.
+>- MyISAM是一个性能极高的引擎，它支持全文本搜索（参见第18章），但不支持事务处理。
+
+### 更新表
+
+> 为更新表定义，可使用ALTER TABLE语句。但是，理想状态下，当表中存储数据以后，该表就不应该再被更新。在表的设计过程中需要花费大量时间来考虑，以便后期不对该表进行大的改动。
+
+> ALTER TABLE 表名 ADD 列名 类型;
+
+### 删除表
+
+> 删除表很简单
+
+```
+DROP TALBE test;
+```
+
+### 重命名
+
+> 可以重命名一个或多个表
+
+```
+ RENAME TABLE demo TO t1;
+ RENAME TABLE demo1 TO t2,demo2 TO t3;
+```
+
+###  选择数据库
 
 > 关键字(key  word)  作为MySQL语言组成部分的一个保留字。决不要用关键字命名一个表或列。
 > **每行语句必须有分号结尾**
@@ -96,6 +127,51 @@ show grants;
 
 # 显示所有的 show能执行的操作
 help show;
+```
+
+
+
+## 添加数据
+
+> 存储到每个表列中的数据在VALUES子句中给出，对每个列必须提供一个值。如果某个列没有值，应该使用NULL值（假定表允许对该列指定空值）。各个列必须以它们在表定义中出现的次序填充。自动增量也为NULL。这是因为每次插入一个新行时，该列由MySQL自动增量。你不想给出一个值，又不能省略此列（如前所述，必须给出每个列），所以指定一个NULL值。
+
+> 虽然这种语法很简单，但并不安全，应该尽量避免使用。上面的SQL语句高度依赖于表中列的定义次序，并且还依赖于其次序容易获得的信息。即使可得到这种次序信息，也不能保证下一次表结构变动后各个列保持完全相同的次序。
+
+```sql
+INSERT INTO student value(NULL,"leo","25","1","sleep","beijing","492260726@qq.com");
+```
+
+> 总是使用列的列表一般不要使用没有明确给出列的列表的INSERT语句。使用列的列表能使SQL代码继续发挥作用，即使表结构发生了变化。
+> 使用这种方法可以省略不用插入的列。但是省略的列需要满足下面的某个条件。
+>- 该列定义为允许NULL值（无值或空值）。
+>- 在表定义中给出默认值。这表示如果不给出值，将使用默认值。
+
+```sql
+INSERT INTO student (name,age,sex,play,address,email) VALUES('tom','27','1','sleep','bj','492260726@qq.com');
+```
+
+> **提高添加数据的性能** 据库经常被多个客户访问，对处理什么请求以及用什么次序处理进行管理是MySQL的任务。INSERT操作可能很耗时（特别是有很多索引需要更新时），而且它可能降低等待处理的SELECT语句的性能。
+如果数据检索是最重要的（通常是这样），则你可以通过在INSERT和INTO之间添加关键字LOW_PRIORITY，指示MySQL降低INSERT语句的优先级，如下所示：顺便说一下，这也适用于下一章介绍的UPDATE和DELETE语句。
+
+```sql
+INSERT LOW_PRIORITY INTO student (name,age,sex,play,address,email) VALUES('jierry','27','1','sleep','bj','492260726@qq.com');
+SELECT * from student;
+```
+
+###  一条插入多组数据
+
+> 提高INSERT的性能  此技术可以提高数据库处理的性能，因为MySQL用单条INSERT语句处理多个插入比使用多条INSERT语句快。
+
+```sql
+INSERT INTO student (name,age,sex,play,address,email) VALUES ('jierry','27','1','sleep','bj','492260726@qq.com'),('jierry','27','1','sleep','bj','492260726@qq.com'),('jierry','27','1','sleep','bj','492260726@qq.com'),('jierry','27','1','sleep','bj','492260726@qq.com');
+```
+
+###  插入检索出的数据
+
+> INSERT一般用来给表插入一个指定列值的行。但是，INSERT还存在另一种形式，可以利用它将一条SELECT语句的结果插入表中。这就是所谓的INSERT SELECT，顾名思义，它是由一条INSERT语句和一条SELECT语句组成的
+
+```
+
 ```
 
 ## 4 Select
